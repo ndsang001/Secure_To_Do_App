@@ -1,0 +1,43 @@
+# Ignore Python-related files
+*.pyc
+*.pyo
+__pycache__/
+*.log
+
+# Ignore virtual environments
+venv/
+.env
+*.sqlite3
+
+# Ignore Django migrations (can be regenerated)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Ignore environment variables & secrets
+.env
+.env.local
+.env.production
+.env.development
+
+# Ignore Docker files that should not be committed
+**/postgres_data/
+**/db.sqlite3
+
+# Ignore dependencies for frontend & backend
+backend/__pycache__/
+backend/requirements.txt.lock
+backend/db.sqlite3
+
+# Ignore Node.js dependencies
+frontend/node_modules/
+frontend/.next/
+frontend/.vite/
+frontend/build/
+frontend/dist/
+frontend/yarn.lock
+frontend/package-lock.json
+
+# Ignore Editor and OS-specific files
+.DS_Store
+.idea/
+.vscode/
