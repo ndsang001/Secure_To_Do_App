@@ -87,12 +87,10 @@ Content-Type: application/json
   "password": "securepassword"
 }
 ```
-Response:
-```json
-{
-  "refresh": "eyJhbGciOiJIUzI1...",
-  "access": "eyJhbGciOiJIUzI1..."
-}
+- Capture cookies from the response
+- For future requests (e.g. `GET /auth/protected/`), set headers:
+```
+Cookie: access=<access_token>; refresh=<refresh_token>
 ```
 
 ✅ **Refresh token:**
