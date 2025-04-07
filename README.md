@@ -6,10 +6,11 @@ This project is a secure **To-Do App** with a **Django backend** and **React Typ
 ---
 
 ## Features
-- User authentication with **JWT** (Login, Register, Protected Routes)
-- CRUD operations for managing tasks
+- User authentication with **JWT** (Login, Register, Refresh, Logout, Protected Routes)
+- CRUD operations for managing tasks (coming soon)
 - Secure API with Django REST Framework (DRF)
-- React frontend with TypeScript
+- React frontend with TypeScript and routing
+- Loading states and error feedback in UI
 - Database powered by PostgreSQL
 - Containerized setup using **Docker & Docker Compose**
 
@@ -94,6 +95,27 @@ Response:
 }
 ```
 
+✅ **Refresh token:**
+```bash
+POST http://localhost:8000/auth/token/refresh/
+Content-Type: application/json
+
+{
+  "refresh": "<refresh_token>"
+}
+```
+
+✅ **Logout and blacklist refresh token:**
+```bash
+POST http://localhost:8000/auth/logout/
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "refresh": "<refresh_token>"
+}
+```
+
 ✅ **Access Protected Route:**
 ```bash
 GET http://localhost:8000/auth/protected/
@@ -102,8 +124,19 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 ---
 
-## Frontend Development (Optional)
-To run the frontend outside Docker, go to the `frontend` folder and start manually:
+## Running Without Docker (Optional)
+If you prefer to run the project **without Docker**, follow these steps:
+
+### 🔹 Backend (Django)
+```bash
+cd backend
+python -m venv venv  # Create a virtual environment
+source venv/bin/activate  # Activate (use venv\Scripts\activate on Windows)
+pip install -r requirements.txt  # Install dependencies
+python manage.py runserver
+```
+
+### 🔹 Frontend (React)
 ```bash
 cd frontend
 npm install
@@ -127,5 +160,15 @@ docker-compose up --build --force-recreate
 docker logs todo_django
 ```
 
-🚀 Happy Coding!
+---
 
+## Security Aspects Covered (OWASP-Based)
+- **Authentication & Session Management**: JWT access/refresh tokens with rotation and blacklisting
+- **Access Control**: Protected routes in both frontend and backend
+- **Cryptographic Storage**: Passwords hashed with PBKDF2 (Django default)
+- **Injection Prevention**: Django ORM used to avoid raw SQL
+- **Sensitive Data Exposure**: `.env` file for credentials, excluded via `.gitignore`
+- **Security Misconfiguration**: Docker-based isolated environment
+- **Component Security**: Dependencies managed via `pip` and `npm` with version control
+
+🚀 Happy Coding!

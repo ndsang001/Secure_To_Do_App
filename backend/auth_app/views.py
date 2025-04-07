@@ -7,6 +7,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 # Generate JWT token
 def get_tokens_for_user(user):
@@ -47,3 +50,14 @@ def login_user(request):
 @permission_classes([IsAuthenticated])
 def protected_route(request):
     return Response({'message': 'This is a protected route!'}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    try:
+        refresh_token = request.data.get("refresh")
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return Response({"detail": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
+    except TokenError:
+        return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
