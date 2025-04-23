@@ -1,48 +1,75 @@
-import { useState } from "react";
-import { TextField, Button, Box, Typography, Container } from "@mui/material";
+import { useState, useEffect } from "react";
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  CircularProgress,
+  Paper,
+} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthenticationStore } from "../../store/useAuthenticationStore";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+
+  const { loginUser, authenticated, error, loading, clearError } =
+    useAuthenticationStore();
+
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    if (email === "user@example.com" && password === "password123") {
-      localStorage.setItem("auth", "true"); // Store authentication state
-      navigate("/dashboard");
-    } else {
-      setError("Invalid email or password");
-    }
+    clearError();
+
+    await loginUser({
+      email,
+      password,
+    });
   };
 
+  useEffect(() => {
+    if (authenticated) {
+      navigate("/dashboard");
+    }
+  }, [authenticated, navigate]);
+
   return (
-    <Container
-      maxWidth="xs"
+    <Box
       sx={{
-        height: "100vh", // Full viewport height
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "#1e1e2f",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        overflow: "hidden",
+        px: 2,
+        boxSizing: "border-box",
       }}
     >
-      <Box
+      <Paper
+        elevation={4}
         sx={{
-          p: 4,
-          boxShadow: 3,
-          borderRadius: 2,
-          textAlign: "center",
-          bgcolor: "background.paper",
           width: "100%",
+          maxWidth: "500px",
+          p: 5,
+          borderRadius: "12px",
+          bgcolor: "#25273c",
+          color: "#fff",
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h4" gutterBottom textAlign="center">
           Sign In
         </Typography>
-        {error && <Typography color="error">{error}</Typography>}
+
+        {error && (
+          <Typography color="error" sx={{ mt: 1, textAlign: "center" }}>
+            {error}
+          </Typography>
+        )}
+
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
@@ -52,6 +79,8 @@ const Signin = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            InputProps={{ sx: { color: "#fff" } }}
+            InputLabelProps={{ sx: { color: "#ccc" } }}
           />
           <TextField
             fullWidth
@@ -61,16 +90,25 @@ const Signin = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            InputProps={{ sx: { color: "#fff" } }}
+            InputLabelProps={{ sx: { color: "#ccc" } }}
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-            Sign In
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{ mt: 3 }}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Sign In"}
           </Button>
         </form>
-        <Typography variant="body2" sx={{ mt: 2 }}>
-          Don't have an account? <Link to="/signup">Sign up</Link>
+
+        <Typography variant="body2" sx={{ mt: 3, textAlign: "center", color: "#ccc" }}>
+          Don't have an account? <Link to="/signup" style={{ color: "#90caf9" }}>Sign up</Link>
         </Typography>
-      </Box>
-    </Container>
+      </Paper>
+    </Box>
   );
 };
 

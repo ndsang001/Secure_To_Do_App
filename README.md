@@ -7,7 +7,7 @@ This project is a secure **To-Do App** with a **Django backend** and **React Typ
 
 ## Features
 - User authentication with **JWT** (Login, Register, Refresh, Logout, Protected Routes)
-- CRUD operations for managing tasks (coming soon)
+- Full CRUD operations for managing tasks (create, read, toggle, clear)
 - Secure API with Django REST Framework (DRF)
 - React frontend with TypeScript and routing
 - Loading states and error feedback in UI
@@ -83,17 +83,13 @@ POST http://localhost:8000/auth/login/
 Content-Type: application/json
 
 {
-  "username": "testuser",
+  "email": "test@example.com",
   "password": "securepassword"
 }
 ```
-- Capture cookies from the response
-- For future requests (e.g. `GET /auth/protected/`), set headers:
-```
-Cookie: access=<access_token>; refresh=<refresh_token>
-```
+- Cookies (access, refresh) will be set in the browser if you use withCredentials: true in frontend requests.
 
-✅ **Refresh token:**
+✅ **Refresh token: (if needed)**
 ```bash
 POST http://localhost:8000/auth/token/refresh/
 Content-Type: application/json
@@ -103,21 +99,45 @@ Content-Type: application/json
 }
 ```
 
-✅ **Logout and blacklist refresh token:**
+✅ **Logout**
 ```bash
 POST http://localhost:8000/auth/logout/
-Authorization: Bearer <access_token>
-Content-Type: application/json
-
-{
-  "refresh": "<refresh_token>"
-}
 ```
 
 ✅ **Access Protected Route:**
 ```bash
 GET http://localhost:8000/auth/protected/
-Authorization: Bearer <ACCESS_TOKEN>
+```
+
+---
+
+## Task API Endpoints
+
+All endpoints below require login (auth via cookies):
+
+### ➕ Create a Task
+```http
+POST http://localhost:8000/auth/todos/
+Content-Type: application/json
+
+{
+  "text": "Buy groceries"
+}
+```
+
+### 📋 Get All Tasks
+```http
+GET http://localhost:8000/auth/todos/
+```
+
+### 🔄 Toggle Task Completion
+```http
+PATCH http://localhost:8000/auth/todos/<todo_id>/toggle/
+```
+
+### ❌ Clear Completed Tasks
+```http
+DELETE http://localhost:8000/auth/todos/clear_completed/
 ```
 
 ---
@@ -161,7 +181,7 @@ docker logs todo_django
 ---
 
 ## Security Aspects Covered (OWASP-Based)
-- **Authentication & Session Management**: JWT access/refresh tokens with rotation and blacklisting
+- **Authentication & Session Management**: JWT access/refresh cookies, HTTP-only, secure
 - **Access Control**: Protected routes in both frontend and backend
 - **Cryptographic Storage**: Passwords hashed with PBKDF2 (Django default)
 - **Injection Prevention**: Django ORM used to avoid raw SQL
