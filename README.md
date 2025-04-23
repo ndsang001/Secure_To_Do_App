@@ -6,10 +6,11 @@ This project is a secure **To-Do App** with a **Django backend** and **React Typ
 ---
 
 ## Features
-- User authentication with **JWT** (Login, Register, Protected Routes)
-- CRUD operations for managing tasks
+- User authentication with **JWT** (Login, Register, Refresh, Logout, Protected Routes)
+- Full CRUD operations for managing tasks (create, read, toggle, clear)
 - Secure API with Django REST Framework (DRF)
-- React frontend with TypeScript
+- React frontend with TypeScript and routing
+- Loading states and error feedback in UI
 - Database powered by PostgreSQL
 - Containerized setup using **Docker & Docker Compose**
 
@@ -82,28 +83,78 @@ POST http://localhost:8000/auth/login/
 Content-Type: application/json
 
 {
-  "username": "testuser",
+  "email": "test@example.com",
   "password": "securepassword"
 }
 ```
-Response:
-```json
+- Cookies (access, refresh) will be set in the browser if you use withCredentials: true in frontend requests.
+
+✅ **Refresh token: (if needed)**
+```bash
+POST http://localhost:8000/auth/token/refresh/
+Content-Type: application/json
+
 {
-  "refresh": "eyJhbGciOiJIUzI1...",
-  "access": "eyJhbGciOiJIUzI1..."
+  "refresh": "<refresh_token>"
 }
+```
+
+✅ **Logout**
+```bash
+POST http://localhost:8000/auth/logout/
 ```
 
 ✅ **Access Protected Route:**
 ```bash
 GET http://localhost:8000/auth/protected/
-Authorization: Bearer <ACCESS_TOKEN>
 ```
 
 ---
 
-## Frontend Development (Optional)
-To run the frontend outside Docker, go to the `frontend` folder and start manually:
+## Task API Endpoints
+
+All endpoints below require login (auth via cookies):
+
+### ➕ Create a Task
+```http
+POST http://localhost:8000/auth/todos/
+Content-Type: application/json
+
+{
+  "text": "Buy groceries"
+}
+```
+
+### 📋 Get All Tasks
+```http
+GET http://localhost:8000/auth/todos/
+```
+
+### 🔄 Toggle Task Completion
+```http
+PATCH http://localhost:8000/auth/todos/<todo_id>/toggle/
+```
+
+### ❌ Clear Completed Tasks
+```http
+DELETE http://localhost:8000/auth/todos/clear_completed/
+```
+
+---
+
+## Running Without Docker (Optional)
+If you prefer to run the project **without Docker**, follow these steps:
+
+### 🔹 Backend (Django)
+```bash
+cd backend
+python -m venv venv  # Create a virtual environment
+source venv/bin/activate  # Activate (use venv\Scripts\activate on Windows)
+pip install -r requirements.txt  # Install dependencies
+python manage.py runserver
+```
+
+### 🔹 Frontend (React)
 ```bash
 cd frontend
 npm install
@@ -127,5 +178,15 @@ docker-compose up --build --force-recreate
 docker logs todo_django
 ```
 
-🚀 Happy Coding!
+---
 
+## Security Aspects Covered (OWASP-Based)
+- **Authentication & Session Management**: JWT access/refresh cookies, HTTP-only, secure
+- **Access Control**: Protected routes in both frontend and backend
+- **Cryptographic Storage**: Passwords hashed with PBKDF2 (Django default)
+- **Injection Prevention**: Django ORM used to avoid raw SQL
+- **Sensitive Data Exposure**: `.env` file for credentials, excluded via `.gitignore`
+- **Security Misconfiguration**: Docker-based isolated environment
+- **Component Security**: Dependencies managed via `pip` and `npm` with version control
+
+🚀 Happy Coding!
