@@ -19,6 +19,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { useState, useEffect } from "react";
 import { useTodoStore } from "../../store/useTodoStore";
 import { Link } from "react-router-dom";
+import logo from "../../assets/freemind_logo.png";
 
 const Dashboard = () => {
   const [input, setInput] = useState("");
@@ -127,6 +128,11 @@ const Dashboard = () => {
         >
           <LogoutIcon />
         </IconButton>
+      </Box>
+
+      {/* Logo */}
+      <Box mb={2} sx={{ position: "absolute", top: 20, left: 30 }}>
+          <img src={logo} alt="App Logo" style={{ height: "60px" }} />
       </Box>
 
       <Typography

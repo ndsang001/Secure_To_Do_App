@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthenticationStore } from "../../store/useAuthenticationStore";
+import logo from "../../assets/freemind_logo.png";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
@@ -35,6 +36,10 @@ const Signin = () => {
     }
   }, [authenticated, navigate]);
 
+  useEffect(() => {
+    clearError(); // Clear any previous errors when this page loads
+  }, [clearError]);
+
   return (
     <Box
       sx={{
@@ -47,8 +52,14 @@ const Signin = () => {
         overflow: "hidden",
         px: 2,
         boxSizing: "border-box",
+        flexDirection: "column", // stack vertically
       }}
     >
+      {/* Logo */}
+      <Box mb={2}>
+          <img src={logo} alt="App Logo" style={{ height: "200px" }} />
+      </Box>
+
       <Paper
         elevation={4}
         sx={{
@@ -58,6 +69,7 @@ const Signin = () => {
           borderRadius: "12px",
           bgcolor: "#25273c",
           color: "#fff",
+          //textAlign: "center", // centers the logo and text
         }}
       >
         <Typography variant="h4" gutterBottom textAlign="center">

@@ -59,6 +59,7 @@ This will:
 To apply migrations and create an admin user, run:
 ```bash
 docker exec -it todo_django bash
+python manage.py makemigrations auth_app
 python manage.py migrate
 python manage.py createsuperuser
 exit

@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { login, register, logout as logoutAPI } from "../api/authentication";
+import { login, register, logout as logoutAPI, fetchCSRFToken as fetchCSRFTokenAPI} from "../api/authentication";
+import axios, { AxiosError } from "axios";
 
 export interface LoginRequest {
     email: string;
@@ -20,6 +21,7 @@ authenticated: boolean;
   registerUser: (data: RegisterRequest) => Promise<void>;
   logoutUser: () => Promise<void>;
   clearError: () => void;
+  fetchCSRFToken: () => Promise<void>;
 }
 
 export const useAuthenticationStore = create<AuthState>((set) => ({
@@ -27,37 +29,79 @@ export const useAuthenticationStore = create<AuthState>((set) => ({
     error: "",
     loading: false,
 
-    loginUser: async (data: LoginRequest) => {
-        set({ loading: true, error: "" });
-
-        try {
-        await login(data);
-        set({ authenticated: true});
-        } catch (err: unknown) {
-        const message =
-            (err instanceof Error && err.message) ||
-            "Login failed. Please try again.";
-        set({ error: message });
-        } finally {
-        set({ loading: false });
-        }
+    fetchCSRFToken: async () => {
+      try {
+        await fetchCSRFTokenAPI();
+      } catch (err) {
+        console.error("Failed to fetch CSRF token:", err);
+      }
     },
+
+    loginUser: async (data: LoginRequest) => {
+      set({ loading: true, error: "" });
+    
+      try {
+        await login(data);
+        set({ authenticated: true });
+      } catch (err) {
+        let message = "Login failed. Please try again.";
+    
+        if ((err as AxiosError<{ error: string }>)?.response?.status === 401) {
+          const axiosError = err as AxiosError<{ error: string }>;
+          message = axiosError.response?.data?.error || message;
+        }
+    
+        set({ error: message });
+      } finally {
+        set({ loading: false });
+      }
+    },       
+
+    // registerUser: async (data: RegisterRequest) => {
+    //   set({ loading: true, error: "" });
+    
+    //   try {
+    //     await register(data);
+    //   } catch (err) {
+    //     let message = "Registration failed. Please try again.";
+    
+    //     if (axios.isAxiosError(err)) {
+    //       const serverError = err.response?.data as { error?: string };
+    //       if (serverError?.error) {
+    //         message = serverError.error;
+    //       }
+    //     }
+    //     console.error("Registration error:", err);
+    //     set({ error: message });
+    //     throw new Error(message);
+    //   } finally {
+    //     set({ loading: false });
+    //   }
+    // },
 
     registerUser: async (data: RegisterRequest) => {
-        set({ loading: true, error: "" });
+      set({ loading: true, error: "" });
     
-        try {
-          await register(data);
-        } catch (err: unknown) {
-          const message =
-            (err instanceof Error && err.message) ||
-            "Registration failed. Please try again.";
-          set({ error: message });
-          throw new Error(message);
-        } finally {
-          set({ loading: false });
+      try {
+        await register(data);
+      } catch (err) {
+        let message = "Registration failed. Please try again.";
+    
+        if (axios.isAxiosError(err)) {
+          const serverError = err.response?.data as { error?: string };
+          if (serverError?.error) {
+            message = serverError.error;
+          }
         }
+    
+        set({ error: message });
+        console.error("Registration error:", message);
+        throw new Error(message); // ✅ Throw with actual message
+      } finally {
+        set({ loading: false });
+      }
     },
+    
 
     logoutUser: async () => {
       try {
