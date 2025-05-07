@@ -16,7 +16,7 @@ import { useAuthenticationStore } from "../../store/useAuthenticationStore";
 import logo from "../../assets/freemind_logo.png";
 
 const Register = () => {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -39,14 +39,14 @@ const Register = () => {
   const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    if (!name || !email || !password) {
+    if (!username || !email || !password) {
       showSnackbar("Please fill in all fields.", "error");
       return;
     }
 
     try {
       clearError();
-      await registerUser({ username: name, email, password });
+      await registerUser({ username: username, email, password });
       showSnackbar("User registered successfully!", "success");
       clearInputs();
       setTimeout(() => navigate("/login"), 1500);
@@ -57,7 +57,7 @@ const Register = () => {
   };
 
   const clearInputs = () => {
-    setName("");
+    setUsername("");
     setEmail("");
     setPassword("");
   };
@@ -118,12 +118,12 @@ const Register = () => {
 
         <Box component="form" sx={{ mt: 3 }}>
           <TextField
-            name="name"
+            name="username"
             fullWidth
-            label="Name"
+            label="User Name"
             required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             margin="normal"
             InputProps={{ sx: { color: "#fff" } }}
             InputLabelProps={{ sx: { color: "#ccc" } }}
