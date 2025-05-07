@@ -13,6 +13,15 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from .models import Todo
 from .serializers import TodoSerializer
+from django_ratelimit.decorators import ratelimit
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
+@ensure_csrf_cookie
+@api_view(['GET'])
+def get_csrf_token(request):
+    return JsonResponse({'message': 'CSRF cookie set'})
 
 # Generate JWT token
 def get_tokens_for_user(user):
@@ -23,6 +32,9 @@ def get_tokens_for_user(user):
     }
 
 # Register User
+# Rate limit registration: 10 per hour per IP
+@ratelimit(key='ip', rate='1000/h', block=True)
+@csrf_protect
 @api_view(['POST'])
 def register_user(request):
     username = request.data.get('username')
@@ -34,12 +46,21 @@ def register_user(request):
     
     if User.objects.filter(email=email).exists():
         return Response({'error': 'Email already registered'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Validate password using Django's built-in validators
+    try:
+        validate_password(password)
+    except ValidationError as e:
+        return Response({'error': e.messages}, status=status.HTTP_400_BAD_REQUEST)
 
     user = User.objects.create_user(username=username, email=email, password=password)
     user.save()
     return Response({'message': 'User registered successfully'}, status=status.HTTP_201_CREATED)
 
 # Login User
+# Rate limit login: 5 attempts per minute per IP
+@ratelimit(key='ip', rate='5/m', block=True)
+@csrf_protect
 @api_view(['POST'])
 def login_user(request):
     email = request.data.get('email')
@@ -57,14 +78,14 @@ def login_user(request):
             key='access',
             value=str(refresh.access_token),
             httponly=True,
-            secure=False,  # Set to True in production
+            secure=False,  # Need to be True in production
             samesite='Lax',
         )
         response.set_cookie(
             key='refresh',
             value=str(refresh),
             httponly=True,
-            secure=False,
+            secure=False, # Need to be True in production
             samesite='Lax',
         )
         return response
@@ -76,7 +97,7 @@ def login_user(request):
 def protected_route(request):
     return Response({'message': f'Welcome, {request.user.username}!'})
 
-
+@csrf_protect
 @api_view(['POST'])
 def logout_view(request):
     response = JsonResponse({'message': 'Logged out'})

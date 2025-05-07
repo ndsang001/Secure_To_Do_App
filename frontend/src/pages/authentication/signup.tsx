@@ -10,9 +10,10 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { LockOutlined } from "@mui/icons-material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthenticationStore } from "../../store/useAuthenticationStore";
+import logo from "../../assets/freemind_logo.png";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -21,7 +22,6 @@ const Register = () => {
 
   const {
     registerUser,
-    error,
     loading,
     clearError,
   } = useAuthenticationStore();
@@ -31,6 +31,10 @@ const Register = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -46,8 +50,9 @@ const Register = () => {
       showSnackbar("User registered successfully!", "success");
       clearInputs();
       setTimeout(() => navigate("/login"), 1500);
-    } catch {
-      showSnackbar(error || "Registration failed.", "error");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Registration failed.";
+      showSnackbar(message, "error");
     }
   };
 
@@ -83,8 +88,14 @@ const Register = () => {
         overflow: "hidden",
         px: 2,
         boxSizing: "border-box",
+        flexDirection: "column", // stack vertically
       }}
     >
+      {/* Logo */}
+      <Box mb={2}>
+          <img src={logo} alt="App Logo" style={{ height: "200px" }} />
+      </Box>
+
       <Paper
         elevation={4}
         sx={{
@@ -139,6 +150,7 @@ const Register = () => {
             margin="normal"
             InputProps={{ sx: { color: "#fff" } }}
             InputLabelProps={{ sx: { color: "#ccc" } }}
+            autoComplete="off"
           />
 
           <Button
