@@ -20,9 +20,21 @@ import { useState, useEffect } from "react";
 import { useTodoStore } from "../../store/useTodoStore";
 import { Link } from "react-router-dom";
 import logo from "../../assets/freemind_logo.png";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+// Validation schema
+const schema = yup.object({
+  text: yup
+    .string()
+    .trim()
+    .required("Todo cannot be empty")
+    .max(200, "Todo must be at most 200 characters"),
+});
 
 const Dashboard = () => {
-  const [input, setInput] = useState("");
+  //const [input, setInput] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -47,13 +59,28 @@ const Dashboard = () => {
     setSnackbarOpen(true);
   };
 
-  const handleAddTodo = () => {
-    if (input.trim()) {
-      addTodo(input.trim());
-      setInput("");
-      showSnackbar("Todo added successfully!");
-    }
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  const onSubmit = (data: { text: string }) => {
+    addTodo(data.text.trim());
+    reset();
+    showSnackbar("Todo added successfully!");
   };
+
+  // const handleAddTodo = () => {
+  //   if (input.trim()) {
+  //     addTodo(input.trim());
+  //     setInput("");
+  //     showSnackbar("Todo added successfully!");
+  //   }
+  // };
 
   const handleToggle = async (id: number) => {
     await toggleTodo(id);
@@ -168,7 +195,7 @@ const Dashboard = () => {
             mb: 3,
           }}
         >
-          <TextField
+          {/* <TextField
             fullWidth
             placeholder="Create a new todo"
             variant="standard"
@@ -182,7 +209,24 @@ const Dashboard = () => {
           />
           <IconButton onClick={handleAddTodo} sx={{ color: "#fff" }}>
             <AddIcon />
-          </IconButton>
+          </IconButton> */}
+          <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", width: "100%" }}>
+            <TextField
+              fullWidth
+              placeholder="Create a new todo"
+              variant="standard"
+              InputProps={{
+                disableUnderline: true,
+                sx: { color: "#fff", ml: 1 },
+              }}
+              {...register("text")}
+              error={!!errors.text}
+              helperText={errors.text?.message}
+            />
+            <IconButton type="submit" sx={{ color: "#fff" }}>
+              <AddIcon />
+            </IconButton>
+          </form>
         </Paper>
 
         {/* Loading/Error */}
