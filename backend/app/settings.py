@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
+import dj_database_url # Import dj_database_url to parse the DATABASE_URL
+from dotenv import load_dotenv
+load_dotenv() # Load environment variables from .env file
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,10 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&yssp#9hu6n1+e4%rvv%qfz$$cjvui)s&b+=9x87wq*@j!hk_k'
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise Exception("SECRET_KEY not found in environment variables")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
+
 
 ALLOWED_HOSTS = []
 
@@ -33,29 +39,31 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'corsheaders',
-    'rest_framework',
+    'django.contrib.admin', 
+    'django.contrib.auth', # Required for auth
+    'django.contrib.contenttypes', # Required for auth
+    'django.contrib.sessions', # Required for sessions
+    'django.contrib.messages', # Required for messages framework
+    'django.contrib.staticfiles', # Required for static files
+    'corsheaders', # CORS headers for cross-origin requests
+    'rest_framework', # Django REST framework
 ]
 
+# Custom apps for authentication and rate limiting
 INSTALLED_APPS += ['auth_app', 'ratelimit']
 
+# Middleware to handle CORS and security headers
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'app.middleware.security_headers.SecurityHeadersMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'app.middleware.jwt_cookie_auth.JWTAuthenticationMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # CORS middleware
+    'django.middleware.security.SecurityMiddleware', # Security middleware
+    'app.middleware.security_headers.SecurityHeadersMiddleware', # Custom security headers middleware
+    'django.contrib.sessions.middleware.SessionMiddleware', # Session middleware
+    'django.middleware.common.CommonMiddleware', # Common middleware
+    'django.middleware.csrf.CsrfViewMiddleware', # CSRF middleware
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # Authentication middleware
+    'django.contrib.messages.middleware.MessageMiddleware', # Messages middleware
+    'django.middleware.clickjacking.XFrameOptionsMiddleware', # Clickjacking protection
+    'app.middleware.jwt_cookie_auth.JWTAuthenticationMiddleware', # Custom JWT authentication middleware
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -89,13 +97,14 @@ DATABASES = {
     }
 }
 
-# Overwrite the default setting for deploying to production 
-DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
-}
+# Overwrite the default setting for deploying to production
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
 
 # Configure Django REST Framework
 REST_FRAMEWORK = {
+    # Use JWT authentication for API endpoints
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -104,6 +113,7 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
         'rest_framework.throttling.AnonRateThrottle',
     ],
+    # Set default throttle rates
     'DEFAULT_THROTTLE_RATES': {
         'user': '500/day',
         'anon': '50/hour',
@@ -113,19 +123,13 @@ REST_FRAMEWORK = {
 # Configure JWT settings
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Token expires in 1 day
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token expires in 7 days
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Token expires in 5 minutes
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Refresh token expires in 1 day
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
-
-INSTALLED_APPS += ['rest_framework_simplejwt.token_blacklist']
-
-SIMPLE_JWT.update({
-    'BLACKLIST_AFTER_ROTATION': True,
-    'ROTATE_REFRESH_TOKENS': True,
-})
+INSTALLED_APPS += ['rest_framework_simplejwt.token_blacklist'] # Token blacklist app for JWT
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -167,7 +171,7 @@ CORS_ALLOWED_ORIGINS = [
 
 # Add secure cookie settings for production
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False # Set to True in production with HTTPS
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True

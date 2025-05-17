@@ -2,6 +2,13 @@ from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.models import AnonymousUser, User
 
 class JWTAuthenticationMiddleware:
+    """
+    Middleware to authenticate users based on JWT stored in cookies.
+    This middleware checks for a JWT in the request cookies and sets the user
+    in the request object if the token is valid. It also injects the token into
+    the request headers so that Django Rest Framework's JWT authentication
+    can process it.
+    """
     def __init__(self, get_response):
         self.get_response = get_response
 

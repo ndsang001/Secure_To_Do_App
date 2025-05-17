@@ -1,3 +1,25 @@
+/**
+ * This file defines the `useTodoStore` hook, which is a Zustand store for managing the state of a to-do application.
+ * It provides state management and asynchronous actions for fetching, adding, toggling, and clearing to-dos.
+ * 
+ * The store includes the following state properties:
+ * - `todos`: An array of to-do items.
+ * - `filter`: A string representing the current filter for displaying to-dos (e.g., "all", "completed", "active").
+ * - `loading`: A boolean indicating whether an asynchronous operation is in progress.
+ * - `error`: A string or null representing the error message from the last failed operation.
+ * 
+ * The store also provides the following actions:
+ * - `fetchTodosFromAPI`: Fetches to-dos from an API and updates the store.
+ * - `addTodo`: Adds a new to-do item to the store.
+ * - `toggleTodo`: Toggles the completion status of a to-do item.
+ * - `clearCompleted`: Removes all completed to-dos from the store.
+ * - `setFilter`: Updates the filter for displaying to-dos.
+ * 
+ * Each action handles errors gracefully by updating the `error` state and ensures the `loading` state is managed appropriately.
+ * 
+ * This store is designed to be used in a React application to manage the state of a to-do list.
+ */
+
 import { create } from "zustand";
 import {
   fetchTodos,

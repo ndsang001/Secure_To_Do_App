@@ -1,18 +1,24 @@
 # Secure_To_Do_App
 
 ## Overview
-This project is a secure **To-Do App** with a **Django backend** and **React TypeScript frontend**, using **PostgreSQL** as the database. It follows best security practices, including **JWT authentication**, **input validation**, and **Docker** containerization.
+This project is a secure **To-Do App** with a **Django backend** and **React TypeScript frontend**, using **SQLite** as the database. It follows OWASP security principles with **JWT authentication**, **rate limiting**, **CSRF protection**, **secure headers**, **input validation**, and **Docker** containerization.
 
 ---
 
 ## Features
-- User authentication with **JWT** (Login, Register, Refresh, Logout, Protected Routes)
-- Full CRUD operations for managing tasks (create, read, toggle, clear)
-- Secure API with Django REST Framework (DRF)
-- React frontend with TypeScript and routing
-- Loading states and error feedback in UI
-- Database powered by PostgreSQL
-- Containerized setup using **Docker & Docker Compose**
+* User authentication with JWT (Login, Register, Refresh, Logout)
+* Secure cookie-based token storage (HttpOnly)
+* Rate limiting and CSRF protection
+* Full CRUD for task management (create, read, toggle, delete)
+* Custom password validation with complexity enforcement
+* Secure API using Django REST Framework (DRF)
+* React frontend with TypeScript and routing
+* Modern React 19 frontend with TypeScript, Zustand, and MUI
+* State management using Zustand
+* Global error handling and protected routes
+* Loading states and error feedback in UI
+* PostgreSQL database
+* Docker-based containerization and environment isolation
 
 ---
 
@@ -45,13 +51,20 @@ ALLOWED_HOSTS=*
 REACT_APP_BACKEND_URL=http://localhost:8000
 ```
 
+If you're not using Docker, use this simpler .env instead in **backend** folder:
+```
+DJANGO_SECRET_KEY=your-very-secret-key
+DATABASE_URL=postgres://todo_user:securepassword@db:5432/todo_db
+DEBUG=True
+```
+
 ### 3️⃣ Start the Project with Docker
 Run the following command to build and start all services:
 ```bash
 docker-compose up --build
 ```
 This will:
-- Start **PostgreSQL** inside a Docker container
+- Start **PostgreSQL** inside a Docker container (The current implementation does not use PostgreSQL, but it would be kept for future developement)
 - Start **Django backend** (available at `http://localhost:8000`)
 - Start **React frontend** (available at `http://localhost:5173`)
 
@@ -92,7 +105,7 @@ Content-Type: application/json
 
 ✅ **Refresh token: (if needed)**
 ```bash
-POST http://localhost:8000/auth/token/refresh/
+POST http://localhost:8000/auth/refresh/
 Content-Type: application/json
 
 {
@@ -165,7 +178,7 @@ Access React at **http://localhost:5173**.
 
 ---
 
-## Useful Commands
+## Useful Docker Commands
 ✅ **Stop all containers:**
 ```bash
 docker-compose down
@@ -183,11 +196,30 @@ docker logs todo_django
 
 ## Security Aspects Covered (OWASP-Based)
 - **Authentication & Session Management**: JWT access/refresh cookies, HTTP-only, secure
-- **Access Control**: Protected routes in both frontend and backend
+- **Access Control**: Protected routes in both frontend and backend. Todos filtered by authenticated user
 - **Cryptographic Storage**: Passwords hashed with PBKDF2 (Django default)
 - **Injection Prevention**: Django ORM used to avoid raw SQL
 - **Sensitive Data Exposure**: `.env` file for credentials, excluded via `.gitignore`
 - **Security Misconfiguration**: Docker-based isolated environment
 - **Component Security**: Dependencies managed via `pip` and `npm` with version control
+* **CSRF Protection**: Enabled via Django + Axios configuration
+* **Rate Limiting**: Login/registration endpoints protected
+* **Input Validation**: Frontend validation using Yup + backend validation via serializers
+* **Password Storage**: PBKDF2 (Django default)
+* **Secure Headers**: Custom middleware adds strict security headers
+* **CORS Control**: Only frontend origin is allowed
+* **Error Handling**: Global error boundaries and user feedback via snackbar
+
+---
+
+## License
+
+This project is for educational purposes and demonstration of secure full-stack app development.
+
+---
+
+## Status
+
+Project is stable and in active development. Contributions are welcome!
 
 🚀 Happy Coding!

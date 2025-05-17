@@ -1,3 +1,17 @@
+/**
+ * @file Signin.tsx
+ * @description This file contains the Signin component, which provides a user interface for signing into the application.
+ * It includes a form for entering email and password, and handles user authentication using the `useAuthenticationStore` hook.
+ * The component also manages navigation to the dashboard upon successful authentication and displays error messages if login fails.
+ * 
+ * @module Signin
+ * 
+ * @requires react - React library for building user interfaces.
+ * @requires @mui/material - Material-UI components for styling and layout.
+ * @requires react-router-dom - Provides navigation and routing functionality.
+ * @requires ../../store/useAuthenticationStore - Custom hook for managing authentication state.
+ * @requires ../../assets/freemind_logo.png - Logo asset for the application.
+ */
 import { useState, useEffect } from "react";
 import {
   TextField,
@@ -69,7 +83,6 @@ const Signin = () => {
           borderRadius: "12px",
           bgcolor: "#25273c",
           color: "#fff",
-          //textAlign: "center", // centers the logo and text
         }}
       >
         <Typography variant="h4" gutterBottom textAlign="center">

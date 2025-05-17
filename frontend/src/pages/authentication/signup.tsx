@@ -1,3 +1,12 @@
+/**
+ * @file Signup.tsx
+ * @description This file contains the `Register` component, which provides a user registration form for the Secure To-Do App.
+ * It includes input fields for username, email, and password, and handles user registration with validation and feedback.
+ * The component uses Material-UI for styling and React Router for navigation.
+ * 
+ * @module Register
+ */
+
 import {
   Avatar,
   Box,
@@ -14,6 +23,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthenticationStore } from "../../store/useAuthenticationStore";
 import logo from "../../assets/freemind_logo.png";
+
 
 const Register = () => {
   const [username, setUsername] = useState("");

@@ -7,7 +7,8 @@ const getCookie = (name: string): string | undefined => {
   return match ? decodeURIComponent(match[2]) : undefined;
 };
 
-// GET /auth/csrf/ to set the CSRF cookie
+// Fetches the CSRF token by making a GET request to the server.
+// This sets the CSRF cookie required for subsequent requests.
 export const fetchCSRFToken = async (): Promise<void> => {
   try {
     await axios.get("/auth/csrf/", { withCredentials: true });
@@ -16,22 +17,19 @@ export const fetchCSRFToken = async (): Promise<void> => {
   }
 };
 
-// export const login = async (data: LoginRequest): Promise<void> => {
-//   await axios.post("/auth/login/", data, {
-//     withCredentials: true, // Important for cookies (access/refresh)
-//   });
-// };
+// Refreshes the authentication token by making a POST request to the server.
+// Requires the CSRF token to be included in the headers.
+export const refreshToken = async (): Promise<void> => {
+  await axios.post("/auth/refresh/", {}, {
+    withCredentials: true,
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken") || "",
+    },
+  });
+};
 
-// export const register = async (data: RegisterRequest): Promise<void> => {
-//   await axios.post("/auth/register/", data, {
-//     withCredentials: true, // optional, only needed if server uses cookies on register
-//   });
-// };
-
-// export const logout = async () => {
-//   await axios.post("/auth/logout/", {}, { withCredentials: true });
-// };
-
+// Logs in the user by sending their credentials to the server.
+// Requires the CSRF token to be included in the headers.
 export const login = async (data: LoginRequest): Promise<void> => {
   await axios.post("/auth/login/", data, {
     withCredentials: true,
@@ -41,6 +39,8 @@ export const login = async (data: LoginRequest): Promise<void> => {
   });
 };
 
+// Registers a new user by sending their details to the server.
+// Requires the CSRF token to be included in the headers.
 export const register = async (data: RegisterRequest): Promise<void> => {
   await axios.post("/auth/register/", data, {
     withCredentials: true,
@@ -50,6 +50,8 @@ export const register = async (data: RegisterRequest): Promise<void> => {
   });
 };
 
+// Logs out the user by making a POST request to the server.
+// Requires the CSRF token to be included in the headers.
 export const logout = async (): Promise<void> => {
   await axios.post("/auth/logout/", {}, {
     withCredentials: true,

@@ -1,9 +1,18 @@
-// src/pages/Logout.tsx
 import { useEffect, useState } from "react";
 import { useAuthenticationStore } from "../../store/useAuthenticationStore";
 import { useNavigate } from "react-router-dom";
 import { Snackbar, Alert } from "@mui/material";
 
+/**
+ * @file Logout.tsx
+ * @description This component handles the user logout process. It utilizes the `useAuthenticationStore` 
+ * to perform the logout operation and redirects the user to the login page after a short delay. 
+ * A success message is displayed using a `Snackbar` component during the logout process.
+ * 
+ * @component
+ * @returns {JSX.Element} The Logout component.
+ * 
+ */
 const Logout = () => {
   const { logoutUser } = useAuthenticationStore();
   const navigate = useNavigate();
@@ -11,9 +20,10 @@ const Logout = () => {
 
   useEffect(() => {
     logoutUser().then(() => {
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000); // Wait 2 seconds before redirecting
+      navigate("/login");
+      // setTimeout(() => {
+      //   navigate("/login");
+      // }, 2000); // Wait 2 seconds before redirecting
     });
   }, [logoutUser, navigate]);
 

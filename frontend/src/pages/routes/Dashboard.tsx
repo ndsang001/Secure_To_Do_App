@@ -1,3 +1,28 @@
+/**
+ * Dashboard Component
+ *
+ * This component represents the main dashboard of the application where users can manage their todos.
+ * It includes features such as adding, toggling, filtering, and clearing todos, as well as displaying
+ * a snackbar for user feedback and handling loading/error states.
+ *
+ * @component
+ *
+ * @returns {JSX.Element} The rendered Dashboard component.
+ *
+ * @remarks
+ * - Uses `useTodoStore` for state management of todos.
+ * - Utilizes `react-hook-form` for form handling and validation.
+ * - Snackbar is used for user feedback on actions.
+ * - Responsive design is implemented for logout button and typography.
+ *
+ * @dependencies
+ * - `@mui/material`: For UI components like Box, Button, Typography, etc.
+ * - `react-hook-form`: For form handling.
+ * - `yup`: For schema validation.
+ * - `react-router-dom`: For navigation (e.g., logout link).
+ *
+ */
+
 import {
   Box,
   Typography,
@@ -73,14 +98,6 @@ const Dashboard = () => {
     reset();
     showSnackbar("Todo added successfully!");
   };
-
-  // const handleAddTodo = () => {
-  //   if (input.trim()) {
-  //     addTodo(input.trim());
-  //     setInput("");
-  //     showSnackbar("Todo added successfully!");
-  //   }
-  // };
 
   const handleToggle = async (id: number) => {
     await toggleTodo(id);
@@ -195,21 +212,7 @@ const Dashboard = () => {
             mb: 3,
           }}
         >
-          {/* <TextField
-            fullWidth
-            placeholder="Create a new todo"
-            variant="standard"
-            InputProps={{
-              disableUnderline: true,
-              sx: { color: "#fff", ml: 1 },
-            }}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddTodo()}
-          />
-          <IconButton onClick={handleAddTodo} sx={{ color: "#fff" }}>
-            <AddIcon />
-          </IconButton> */}
+          {/* Input Field */}
           <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", width: "100%" }}>
             <TextField
               fullWidth

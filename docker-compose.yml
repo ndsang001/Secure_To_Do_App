@@ -31,7 +31,9 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgres://todo_user:securepassword@db:5432/todo_db
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: ${DEBUG}
 
   frontend:
     build: ./frontend
